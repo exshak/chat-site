@@ -18,7 +18,7 @@ const connect = async () => {
       useUnifiedTopology: true
     })
 
-    console.log('Connected to MongoDB')
+    console.log('MongoDB Connected')
   } catch (error) {
     console.error(error.message)
 
@@ -33,5 +33,5 @@ app.use(express.json({ extended: true }))
 app.get('/', (req, res) => res.send('running'))
 
 app.listen(port, () =>
-  console.log('Server is running on http://localhost:%d', port)
+  console.log('Server running on http://localhost:%d', port)
 )
