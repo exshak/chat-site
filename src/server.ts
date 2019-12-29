@@ -14,6 +14,7 @@ const mongoURI =
 const connect = async () => {
   try {
     await mongoose.connect(mongoURI, {
+      useCreateIndex: true,
       useNewUrlParser: true,
       useUnifiedTopology: true
     })
@@ -30,7 +31,7 @@ connect() // Connect to MongoDB
 
 app.use(express.json({ extended: true }))
 
-app.get('/', (req, res) => res.send('running'))
+app.use('/api', require('./routes/users'))
 
 app.listen(port, () =>
   console.log('Server running on http://localhost:%d', port)
