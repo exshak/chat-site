@@ -32,6 +32,7 @@ connect() // Connect to MongoDB
 app.use(express.json({ extended: true }))
 
 app.use('/api', require('./routes/users'))
+app.use('/api', require('./routes/posts'))
 
 app.listen(port, () =>
   console.log('Server running on http://localhost:%d', port)
