@@ -106,6 +106,15 @@ router.post('/profile', auth, async (req, res) => {
   }
 })
 
+router.get('/user', auth, async (req, res) => {
+  try {
+    res.json(req.user)
+  } catch (error) {
+    console.error(error.message)
+    res.status(500).send({ errors: error.message })
+  }
+})
+
 module.exports = router
 
 export {}

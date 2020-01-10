@@ -1,26 +1,40 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { createMuiTheme, MuiThemeProvider } from '@material-ui/core'
+import axios from 'axios'
+import React, { useEffect } from 'react'
+import { Route, Switch } from 'react-router-dom'
+import './App.css'
+import Header from './components/header'
+import HomePage from './pages'
+import SignInPage from './pages/signin'
+import SignUpPage from './pages/signup'
+import { getCurrentUser } from './redux/actions/userActions'
+import store from './redux/store'
+import defaultTheme from './theme'
 
-const App: React.FC = () => {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+const theme = createMuiTheme(defaultTheme)
+
+const token = localStorage.token
+if (token) {
+  axios.defaults.headers.common['Authorization'] = token
 }
 
-export default App;
+const App: React.FC = () => {
+  useEffect(() => {
+    store.dispatch(getCurrentUser())
+  }, [])
+
+  return (
+    <MuiThemeProvider theme={theme}>
+      <div className='App'>
+        <Header />
+        <Switch>
+          <Route exact path='/' component={HomePage} />
+          <Route exact path='/signin' component={SignInPage} />
+          <Route exact path='/signup' component={SignUpPage} />
+        </Switch>
+      </div>
+    </MuiThemeProvider>
+  )
+}
+
+export default App

@@ -9,8 +9,10 @@ const auth = async (req, res, next) => {
     return res.status(400).json({ msg: 'Authentication token is required' })
   }
 
+  const accessToken = token.split(' ')[1]
+
   try {
-    const decoded = await jwt.verify(token, secret)
+    const decoded = await jwt.verify(accessToken, secret)
     if (!decoded) {
       return res.status(400).json({ msg: 'Invalid token' })
     }
