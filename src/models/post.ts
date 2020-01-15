@@ -4,10 +4,13 @@ const postSchema = new Schema(
   {
     name: String,
     body: String,
+    image: String,
+    title: String,
     comments: [
       {
         name: String,
         body: String,
+        image: String,
         user: {
           type: Schema.Types.ObjectId,
           ref: 'users'

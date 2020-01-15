@@ -87,7 +87,7 @@ router.post('/profile', auth, async (req, res) => {
   }
 
   const user = req.user
-  const { email, name, about, picture, location } = req.body
+  const { email, name, about, image, location } = req.body
 
   try {
     if (user.email !== email) {
@@ -97,7 +97,7 @@ router.post('/profile', auth, async (req, res) => {
       }
     }
 
-    await user.set({ email, profile: { name, about, picture, location } }).save()
+    await user.set({ email, profile: { name, about, image, location } }).save()
 
     return res.status(200).json({ user })
   } catch (error) {
@@ -106,6 +106,7 @@ router.post('/profile', auth, async (req, res) => {
   }
 })
 
+// GET - api/user - Current user
 router.get('/user', auth, async (req, res) => {
   try {
     res.json(req.user)

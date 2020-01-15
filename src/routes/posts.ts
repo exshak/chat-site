@@ -15,11 +15,11 @@ router.post('/posts', auth, async (req, res) => {
     return res.status(400).json({ errors: errors.array() })
   }
 
-  const user = req.user
-  const { name, body } = req.body
+  const { id: user, profile: { name, image } } = req.user
+  const { body, title } = req.body
 
   try {
-    const post = await new Post({ name, body, user }).save()
+    const post = await new Post({ name, body, image, title, user }).save()
 
     return res.status(200).json({ post })
   } catch (error) {
@@ -44,6 +44,35 @@ router.delete('/posts/:id', auth, async (req, res) => {
     await post.remove()
 
     return res.status(200).json({ msg: 'Post removed' })
+  } catch (error) {
+    console.error(error.message)
+    res.status(500).send({ errors: error.message })
+  }
+})
+
+// GET - api/posts - All posts
+router.get('/posts', auth, async (req, res) => {
+  try {
+    const posts = await Post.find().sort({ date: -1 })
+
+    res.json(posts)
+  } catch (error) {
+    console.error(error.message)
+    res.status(500).send({ errors: error.message })
+  }
+})
+
+// GET - api/posts/:id - Single post
+router.get('/posts/:id', auth, async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.id)
+
+    // Check for ObjectId format and post
+    if (!req.params.id.match(/^[0-9a-fA-F]{24}$/) || !post) {
+      return res.status(400).json({ errors: [{ msg: 'Post not found' }] })
+    }
+
+    res.json(post)
   } catch (error) {
     console.error(error.message)
     res.status(500).send({ errors: error.message })

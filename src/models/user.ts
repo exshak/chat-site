@@ -10,7 +10,7 @@ const userSchema = new Schema(
     profile: {
       name: String,
       about: String,
-      picture: String,
+      image: String,
       location: String
     }
   },
