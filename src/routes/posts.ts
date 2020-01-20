@@ -3,11 +3,11 @@ const { check, validationResult } = require('express-validator')
 const auth = require('../utils/auth')
 
 const Post = require('../models/post')
-const User = require('../models/user')
 
 // prettier-ignore
 // POST - api/posts - Create post
 router.post('/posts', auth, async (req, res) => {
+  await check('title', 'Text is required').not().isEmpty().run(req)
   await check('body', 'Text is required').not().isEmpty().run(req)
 
   const errors = validationResult(req)
@@ -16,12 +16,12 @@ router.post('/posts', auth, async (req, res) => {
   }
 
   const { id: user, profile: { name, image } } = req.user
-  const { body, title } = req.body
+  const { title, body } = req.body
 
   try {
     const post = await new Post({ name, body, image, title, user }).save()
 
-    return res.status(200).json({ post })
+    return res.status(200).json(post)
   } catch (error) {
     console.error(error.message)
     res.status(500).send({ errors: error.message })
@@ -37,7 +37,7 @@ router.delete('/posts/:id', auth, async (req, res) => {
       return res.status(400).json({ errors: [{ msg: 'Post not found' }] })
     }
 
-    if (post.user.toString() !== req.user) {
+    if (post.user.toString() !== req.user.id) {
       return res.status(400).json({ errors: [{ msg: 'User not authorized' }] })
     }
 
@@ -55,14 +55,14 @@ router.get('/posts', auth, async (req, res) => {
   try {
     const posts = await Post.find().sort({ date: -1 })
 
-    res.json(posts)
+    return res.status(200).json(posts)
   } catch (error) {
     console.error(error.message)
     res.status(500).send({ errors: error.message })
   }
 })
 
-// GET - api/posts/:id - Single post
+// GET - api/posts/:id - One post
 router.get('/posts/:id', auth, async (req, res) => {
   try {
     const post = await Post.findById(req.params.id)
@@ -72,7 +72,7 @@ router.get('/posts/:id', auth, async (req, res) => {
       return res.status(400).json({ errors: [{ msg: 'Post not found' }] })
     }
 
-    res.json(post)
+    return res.status(200).json(post)
   } catch (error) {
     console.error(error.message)
     res.status(500).send({ errors: error.message })
@@ -80,7 +80,7 @@ router.get('/posts/:id', auth, async (req, res) => {
 })
 
 // prettier-ignore
-// POST - api/posts/comment/:id - Comment on a post
+// POST - api/posts/comment/:id - Comment on post
 router.post('/posts/comment/:id', auth, async (req, res) => {
   await check('body', 'Text is required').not().isEmpty().run(req)
 
@@ -95,13 +95,13 @@ router.post('/posts/comment/:id', auth, async (req, res) => {
   try {
     const post = await Post.findById(req.params.id)
 
-    const newComment = { name, body, image, user }
+    const newComment = { name, body, image, user, createdAt: Date.now() }
 
     post.comments.unshift(newComment)
 
     await post.save()
 
-    res.json(post.comments)
+    return res.status(200).json(post.comments)
   } catch (error) {
     console.error(error.message)
     res.status(500).send({ errors: error.message })
@@ -138,7 +138,7 @@ router.delete('/posts/comment/:id/:comment_id', auth, async (req, res) => {
 
     await post.save()
 
-    res.json(post.comments)
+    return res.status(200).json(post.comments)
   } catch (error) {
     console.error(error.message)
     res.status(500).send({ errors: error.message })
@@ -161,7 +161,7 @@ router.put('/posts/like/:id', auth, async (req, res) => {
 
     await post.save()
 
-    res.json(post.likes)
+    return res.status(200).json(post.likes)
   } catch (error) {
     console.error(error.message)
     res.status(500).send({ errors: error.message })
@@ -190,7 +190,7 @@ router.put('/posts/unlike/:id', auth, async (req, res) => {
 
     await post.save()
 
-    res.json(post.likes)
+    return res.status(200).json(post.likes)
   } catch (error) {
     console.error(error.message)
     res.status(500).send({ errors: error.message })

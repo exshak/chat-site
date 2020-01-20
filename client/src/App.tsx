@@ -4,7 +4,7 @@ import React, { useEffect } from 'react'
 import { connect } from 'react-redux'
 import { Route, Switch } from 'react-router-dom'
 import './App.css'
-import NavBar from './components/navBar'
+import Navbar from './components/navbar'
 import HomePage from './pages'
 import PostsPage from './pages/posts'
 import SignInPage from './pages/signin'
@@ -28,7 +28,7 @@ const App: React.FC = ({ getCurrentUser }: any) => {
   return (
     <div className='App'>
       <MuiThemeProvider theme={theme}>
-        <NavBar />
+        <Navbar />
         <Switch>
           <Route exact path='/' component={HomePage} />
           <Route exact path='/posts' component={PostsPage} />

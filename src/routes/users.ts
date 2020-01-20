@@ -11,6 +11,7 @@ const expiresIn = process.env.JWT_EXPIRATION
 // prettier-ignore
 // POST - api/signup - Register user
 router.post('/signup', async (req, res) => {
+  await check('name', 'Name is required').not().isEmpty().run(req)
   await check('email', 'Email is not valid').isEmail().run(req)
   await check('password', 'Password must be at least 4 characters long').isLength({ min: 4 }).run(req)
   await sanitize('email').normalizeEmail({ gmail_remove_dots: false }).run(req)
@@ -20,7 +21,8 @@ router.post('/signup', async (req, res) => {
     return res.status(400).json({ errors: errors.array() })
   }
 
-  const { email, password } = req.body
+  const { name, email, password } = req.body
+  const image = '../../client/src/assets/images/profile.png'
 
   try {
     const existingUser = await User.findOne({ email })
@@ -30,7 +32,7 @@ router.post('/signup', async (req, res) => {
 
     const hash = bcrypt.hashSync(password, 10)
 
-    const user = await new User({ email, password: hash }).save()
+    const user = await new User({ email, password: hash, profile: { name, image } }).save()
 
     const token = jwt.sign({ userId: user.id }, secret, { expiresIn })
 
@@ -78,26 +80,12 @@ router.post('/signin', async (req, res) => {
 // prettier-ignore
 // POST - api/profile - Update profile
 router.post('/profile', auth, async (req, res) => {
-  await check('email', 'Email is not valid').isEmail().run(req)
-  await sanitize('email').normalizeEmail({ gmail_remove_dots: false }).run(req)
-
-  const errors = validationResult(req)
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() })
-  }
-
   const user = req.user
-  const { email, name, about, image, location } = req.body
+  const { name, about, location } = req.body
+  const image = req.body.image ? req.body.image : user.profile.image
 
   try {
-    if (user.email !== email) {
-      const existingUser = await User.findOne({ email })
-      if (existingUser) {
-        return res.status(400).json({ errors: [{ msg: 'Email has already been taken.' }] })
-      }
-    }
-
-    await user.set({ email, profile: { name, about, image, location } }).save()
+    await user.set({ profile: { name, about, image, location } }).save()
 
     return res.status(200).json({ user })
   } catch (error) {

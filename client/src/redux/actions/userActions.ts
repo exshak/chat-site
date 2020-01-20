@@ -1,6 +1,7 @@
 import axios from 'axios'
-import UserActionTypes from '../types'
+import { UserActionTypes } from '../types'
 
+// Register user
 export const signUpStart = ({ name, email, password }: any) => async (
   dispatch: any
 ) => {
@@ -15,10 +16,7 @@ export const signUpStart = ({ name, email, password }: any) => async (
   try {
     const response = await axios.post('/api/signup', body, config)
 
-    dispatch({
-      type: UserActionTypes.SIGN_UP_SUCCESS,
-      payload: response.data
-    })
+    dispatch({ type: UserActionTypes.SIGN_UP_SUCCESS })
 
     setAuthHeader(response.data.token)
 
@@ -31,6 +29,7 @@ export const signUpStart = ({ name, email, password }: any) => async (
   }
 }
 
+// Login user
 export const signInStart = ({ email, password }: any) => async (
   dispatch: any
 ) => {
@@ -45,10 +44,7 @@ export const signInStart = ({ email, password }: any) => async (
   try {
     const response = await axios.post('/api/signin', body, config)
 
-    dispatch({
-      type: UserActionTypes.SIGN_IN_SUCCESS,
-      payload: response.data
-    })
+    dispatch({ type: UserActionTypes.SIGN_IN_SUCCESS })
 
     setAuthHeader(response.data.token)
 
@@ -61,6 +57,23 @@ export const signInStart = ({ email, password }: any) => async (
   }
 }
 
+// Logout user
+export const signOutStart = () => (dispatch: any) => {
+  try {
+    localStorage.removeItem('token')
+
+    delete axios.defaults.headers.common['Authorization']
+
+    dispatch({ type: UserActionTypes.SIGN_OUT_SUCCESS })
+  } catch (error) {
+    dispatch({
+      type: UserActionTypes.SIGN_OUT_FAILURE,
+      payload: error.response.data
+    })
+  }
+}
+
+// Load current user
 export const getCurrentUser = () => async (dispatch: any) => {
   try {
     const response = await axios.get('/api/user')
@@ -77,21 +90,33 @@ export const getCurrentUser = () => async (dispatch: any) => {
   }
 }
 
-export const signOutStart = () => (dispatch: any) => {
+// Edit or update profile
+export const updateProfile = ({ name, about, location }: any) => async (
+  dispatch: any
+) => {
   try {
-    localStorage.removeItem('token')
+    const config = {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }
 
-    delete axios.defaults.headers.common['Authorization']
+    const body = JSON.stringify({ name, about, location })
 
-    dispatch({ type: UserActionTypes.SIGN_OUT_SUCCESS })
+    await axios.post('/api/profile', body, config)
+
+    dispatch({ type: UserActionTypes.UPDATE_PROFILE })
+
+    dispatch(getCurrentUser())
   } catch (error) {
     dispatch({
-      type: UserActionTypes.SIGN_OUT_FAILURE,
+      type: UserActionTypes.PROFILE_ERROR,
       payload: error.response.data
     })
   }
 }
 
+// Embed accessToken
 const setAuthHeader = (token: any) => {
   const accessToken = `Bearer ${token}`
   localStorage.setItem('token', accessToken)

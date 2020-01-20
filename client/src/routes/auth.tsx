@@ -22,7 +22,8 @@ const AuthRoute: React.FC = ({
 )
 
 AuthRoute.propTypes = {
-  user: PropTypes.object.isRequired
+  isAuthenticated: PropTypes.bool.isRequired,
+  loading: PropTypes.bool.isRequired
 }
 
 const mapStateToProps = ({ user: { isAuthenticated, loading } }: any) => ({
