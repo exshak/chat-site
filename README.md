@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://dyno-chat.herokuapp.com">
-    <img src="./logo.svg" alt="Dyno Chat" width="300" />
+    <img src="./client/src/assets/images/logo.svg" alt="Dyno Chat" width="400" />
   </a>
 </p>
 
